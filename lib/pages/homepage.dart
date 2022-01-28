@@ -1,158 +1,341 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_application_2/pages/model.dart';
+import 'package:flutter_application_2/pages/drinks.dart';
+import 'package:flutter_application_2/pages/year_std.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class MyHomePage extends StatelessWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+class Inputwidgets extends StatefulWidget {
+  const Inputwidgets({Key? key}) : super(key: key);
+
+  @override
+  _InputwidgetsState createState() => _InputwidgetsState();
+}
+
+class _InputwidgetsState extends State<Inputwidgets> {
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _username = TextEditingController();
+  final TextEditingController _pasword = TextEditingController();
+
+  String? groupcourse;
+  List<Course>? courses;
+  String? groupyearstd;
+  List<YearStd>? years;
+  List checkTeam = [];
+  List<Football>? teams;
+
+  List<ListItem>? types = ListItem.getItem();
+  late List<DropdownMenuItem<ListItem>> _dropdownMenuItem;
+  late ListItem _selectedTypeItem;
+
+  @override
+  void initState() {
+    super.initState();
+    courses = Course.getcourse();
+    years = YearStd.getYear_Std();
+    teams = Football.getteam();
+    _dropdownMenuItem = createDropdownMenuItem(types!);
+    _selectedTypeItem = _dropdownMenuItem[0].value!;
+    // print(foods);
+  }
+
+  List<DropdownMenuItem<ListItem>> createDropdownMenuItem(
+      List<ListItem> types) {
+    List<DropdownMenuItem<ListItem>> items = [];
+
+    for (var item in types) {
+      items.add(DropdownMenuItem(
+        child: Text(item.name!),
+        value: item,
+      ));
+    }
+    return items;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("622021121"),
+        title: Center(child: Text('Input Widget')),
       ),
-      body: ListView(
-        padding: EdgeInsets.zero,
-        children: <Widget>[
-          buildTop(),
-          buildContent(),
-          about(),
-        ],
-      ),
-    );
-  }
-
-  Widget buildTop() {
-    return Stack(
-      clipBehavior: Clip.none,
-      alignment: Alignment.center,
-      children: [
-        profile(),
-        Positioned(
-          top: 190,
-          child: profileinternet(),
-        ),
-        // myname(),
-        // birthday(),
-      ],
-    );
-  }
-
-  Widget buildContent() => Column(
-        children: [
-          const SizedBox(height: 8),
-          Text(
-            'Dell Theerapat',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '622021121@tsu.ac.th',
-            style: TextStyle(fontSize: 14, color: Colors.grey),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+      body: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          child: Column(
             children: [
-              buildSocialIcon(FontAwesomeIcons.instagram),
-              const SizedBox(width: 12),
-              buildSocialIcon(FontAwesomeIcons.twitter),
-              const SizedBox(width: 12),
-              buildSocialIcon(FontAwesomeIcons.github),
-              const SizedBox(width: 12),
-              buildSocialIcon(FontAwesomeIcons.facebook),
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Text(
+                  '--- Personal Information ---',
+                  style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                ),
+              ),
+              usernameTextFormField(),
+              passwordTextFormField(),
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.only(top: 12.0, bottom: 12.0),
+                child: Column(
+                  children: createRadioYear(),
+                ),
+              ),
+              line2(),
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.only(top: 12.0, bottom: 12.0),
+                child: Column(
+                  children: createRadioCourse(),
+                ),
+              ),
+              line2(),
+              const SizedBox(height: 16),
+              DropdownButton(
+                value: _selectedTypeItem,
+                items: _dropdownMenuItem,
+                onChanged: (ListItem? value) {
+                  setState(() {
+                    _selectedTypeItem = value!;
+                  });
+                },
+              ),
+              line(),
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Text(
+                  '--- ทีมฟุตบอลที่ชอบ ---',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  children: createCheckboxTeam(),
+                ),
+              ),
+              SubmitButton(),
             ],
           ),
-        ],
-      );
-  Widget about() => Container(
-        padding: EdgeInsets.only(right: 40, left: 40, top: 30),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'About',
-              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'My name is Theerapat Traikaew',
-              style: TextStyle(fontSize: 16, height: 1.4),
-            ),
-          ],
         ),
-      );
-
-  Widget buildSocialIcon(IconData icon) => CircleAvatar(
-        radius: 25,
-        child: Center(child: Icon(icon, size: 32)),
-      );
-
-  Widget profileinternet() {
-    return CircleAvatar(
-      radius: 80,
-      backgroundColor: Colors.grey,
-      child: CircleAvatar(
-        radius: 78,
-        backgroundImage: NetworkImage(
-            'https://scontent.fbkk28-1.fna.fbcdn.net/v/t1.6435-9/66389968_2500998303455630_1232085465633390592_n.jpg?_nc_cat=102&ccb=1-5&_nc_sid=e3f864&_nc_eui2=AeG5Vul4hnqfEfFLxmJfaQdpJrQageMdYDQmtBqB4x1gNB8JtEgm7bNOHwnBRWFG7iFfkDp3BQsz-RSrvM53XvB2&_nc_ohc=uwDYbT3oa9IAX-apbl-&_nc_ht=scontent.fbkk28-1.fna&oh=00_AT8O5rADD6LRXyCgFLvOW8rbcfDntpHZjCjt2VsFTvi3RA&oe=61EBD840'),
       ),
     );
   }
 
-  Widget profile() => Container(
-        padding: EdgeInsets.only(bottom: 70),
-        child: Image.network(
-          'https://videohive.img.customer.envatousercontent.com/files/168872159/Binary%20Code%20Image%20Preview.jpg?auto=compress%2Cformat&fit=crop&crop=top&max-h=8000&max-w=590&s=bbc543b82eb4227674bb7573e86b5295',
-          width: double.infinity,
-          height: 280,
-          fit: BoxFit.cover,
+  Center dropdown() {
+    return Center(
+      child: Container(
+        decoration: BoxDecoration(color: Colors.white),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(8, 5, 8, 5),
+          child: DropdownButton(
+            items: _dropdownMenuItem,
+            value: _selectedTypeItem,
+            onChanged: (ListItem? value) {
+              setState(() {
+                _selectedTypeItem = value!;
+              });
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget SubmitButton() {
+    return Container(
+      child: ElevatedButton(
+        onPressed: () {
+          if (_formKey.currentState!.validate()) {
+            print(_username.text);
+          }
+        },
+        child: Text('Submit'),
+      ),
+    );
+  }
+
+  Widget usernameTextFormField() {
+    return Container(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+        child: TextFormField(
+          style: TextStyle(color: Colors.purple),
+          controller: _username,
+          validator: (vaLue) {
+            if (vaLue!.isEmpty) {
+              return "please enter your name";
+            }
+            return null;
+          },
+          decoration: InputDecoration(
+              fillColor: Colors.white,
+              filled: true,
+              labelText: 'Fullname',
+              prefixIcon: Icon(Icons.vpn_key),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(32)),
+              )),
+        ),
+      ),
+    );
+  }
+
+  Widget passwordTextFormField() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 5, 20, 5),
+      child: TextFormField(
+        obscureText: true,
+        obscuringCharacter: '*',
+        controller: _pasword,
+        validator: (vaLue) {
+          if (vaLue!.isEmpty) {
+            return "please enter your ID";
+          }
+          return null;
+        },
+        decoration: InputDecoration(
+            fillColor: Colors.white,
+            filled: true,
+            labelText: 'Student-ID',
+            prefixIcon: Icon(Icons.vpn_key),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(32)),
+            )),
+      ),
+    );
+  }
+
+  List<Widget> createRadioCourse() {
+    List<Widget> listCourse = [];
+    for (var course in courses!) {
+      listCourse.add(
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+            child: RadioListTile<dynamic>(
+              title: Text(
+                course.thname!,
+              ),
+              value: course.coursevalue!,
+              groupValue: groupcourse,
+              onChanged: (value) {
+                setState(() {
+                  groupcourse = value;
+                });
+              },
+            ),
+          ),
         ),
       );
+    }
+    return listCourse;
+  }
 
-  // Widget profile() {
-  //   return Image.asset(
-  //     'images/sad.jpg',
-  //     fit: BoxFit.cover,
-  //   );
-  // }
+  List<Widget> createRadioYear() {
+    List<Widget> listYear = [];
 
-  // Row myname() {
-  //   return Row(
-  //     mainAxisAlignment: MainAxisAlignment.center,
-  //     children: [
-  //       Padding(
-  //         padding: const EdgeInsets.all(8.0),
-  //         child: FaIcon(
-  //           FontAwesomeIcons.gamepad,
-  //           color: Colors.green,
-  //         ),
-  //       ),
-  //       Text(
-  //         "DELL THEERAPAT",
-  //         style: GoogleFonts.itim(
-  //           color: Colors.blue,
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
+    for (var year in years!) {
+      listYear.add(
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+            child: RadioListTile<dynamic>(
+              title: Text(
+                year.year!,
+              ),
+              value: year.yearValue!,
+              groupValue: groupyearstd,
+              onChanged: (value) {
+                setState(() {
+                  groupyearstd = value;
+                });
+              },
+            ),
+          ),
+        ),
+      );
+    }
+    return listYear;
+  }
 
-  // Row birthday() {
-  //   return Row(
-  //     mainAxisAlignment: MainAxisAlignment.center,
-  //     children: [
-  //       Padding(
-  //         padding: const EdgeInsets.all(8.0),
-  //         child: Icon(Icons.person),
-  //       ),
-  //       Text(
-  //         "29-05-2000",
-  //         style: GoogleFonts.itim(
-  //           color: Colors.blue,
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
+  List<Widget> createCheckboxTeam() {
+    List<Widget> listTeam = [];
+    for (var team in teams!) {
+      listTeam.add(
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(20)),
+              color: Colors.white,
+            ),
+            child: CheckboxListTile(
+              value: team.checked,
+              title: Text(team.teamname!),
+              // subtitle: Text('${drink.price} บาท'),
+              onChanged: (value) {
+                setState(() {
+                  team.checked = value;
+                });
+                if (value!) {
+                  checkTeam.add(team.teamname);
+                } else {
+                  checkTeam.remove(team.teamname);
+                }
+              },
+            ),
+          ),
+        ),
+      );
+    }
+    return listTeam;
+  }
 }
+
+class ListItem {
+  int? value;
+  String? name;
+
+  ListItem(this.value, this.name);
+
+  static getItem() {
+    return [
+      ListItem(1, 'คณะวิทยาศาสตร์'),
+      ListItem(2, 'คณะวิทยาการสุขภาพและการกีฬา'),
+      ListItem(3, 'คณะเทคโนโลยีและการพัฒนาชุมชน'),
+      ListItem(4, 'คณะนิติศาสตร์'),
+      ListItem(5, 'คณะวิศวกรรมศาสตร์'),
+      ListItem(6, 'คณะพยาบาลศาสตร์'),
+      ListItem(7, 'คณะอุตสาหกรรมเกษตรและชีวภาพ'),
+    ];
+  }
+
+  // void add(DropdownMenuItem dropdownMenuItem) {}
+}
+
+Widget line() => Container(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+              child: Container(
+            padding: EdgeInsets.only(left: 10, right: 10, bottom: 10),
+            child: Divider(color: Colors.grey.shade600, thickness: 2),
+          )),
+        ],
+      ),
+    );
+
+Widget line2() => Container(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+              child: Container(
+            padding: EdgeInsets.only(left: 30, right: 30),
+            child: Divider(color: Colors.grey.shade500, thickness: 1),
+          )),
+        ],
+      ),
+    );
